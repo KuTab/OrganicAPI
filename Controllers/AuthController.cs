@@ -10,10 +10,38 @@ namespace OrganicAPI.Controllers
     [Route("api/auth")]
     public class AuthController : ControllerBase
     {
-        [HttpGet("login")]
-        public IActionResult Login()
+        private readonly IAuthService _service;
+        
+        public AuthController(IAuthService service)
         {
-            return Ok();
+            _service = service;
+        }
+
+        [HttpPost("register")]
+        [Consumes("application/json")]
+        [Produces("application/json")]
+        public async Task<ActionResult<ServiceResponse<LoginDto>>> Register(UserRegisterDto request)
+        {
+            var response = await _service.Register(new Model.User {Email = request.Email, isSupplier = request.isSupplier}, request.Password);
+            if (!response.Success) 
+            {
+                return BadRequest(response);
+            }
+            var newResponse = await _service.Login(request.Email, request.Password);
+            return Ok(newResponse);
+        }
+
+        [HttpPost("login")]
+        [Consumes("application/json")]
+        [Produces("application/json")]
+        public async Task<ActionResult<ServiceResponse<LoginDto>>> Login(UserLoginDto request)
+        {
+            var response = await _service.Login(request.Email, request.Password);
+            if(!response.Success)
+            {
+                return BadRequest(response);
+            }
+            return Ok(response);
         }
     }
 }
