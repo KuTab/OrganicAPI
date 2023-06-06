@@ -20,6 +20,7 @@ global using Microsoft.AspNetCore.Authorization;
 global using Swashbuckle.AspNetCore.Filters;
 global using Microsoft.OpenApi.Models;
 global using System.Security.Claims;
+global using System.ComponentModel.DataAnnotations;
 
 var builder = WebApplication.CreateBuilder(args);
 

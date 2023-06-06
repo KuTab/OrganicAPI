@@ -20,11 +20,26 @@ namespace OrganicAPI.Services.OrderService
         public async Task<ServiceResponse<string>> CreateOreder(CreateOrderDto orderDto, int userId) 
         {
             var order = new Order();
+            var response = new ServiceResponse<string>();
+
+            var summedProducts = orderDto.Products.GroupBy(x => x.ProductId).ToDictionary(x => x.Count(), x => x.ToList());
+            foreach(var product in summedProducts) {
+                System.Console.WriteLine($"Count {product.Key}");
+                var productInOrder = await _context.Products.FirstAsync(x => x.Id == product.Value[0].ProductId);
+                if (product.Key > productInOrder.Quantity) {
+                    response.Success = false;
+                    response.Message = $"В наличии нет выбранного количества продукта {productInOrder.Title}. Доступно для заказа {productInOrder.Quantity}";
+                    return response;
+                }
+            }
+
             order.User = await _context.Users.FirstAsync(x => x.Id == userId);
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
+
             foreach(var prod in orderDto.Products) {
                 var product = await _context.Products.FirstAsync(x => x.Id == prod.ProductId);
+                product.Quantity -= 1;
                 var orderProduct = new OrderProduct();
                 orderProduct.Order = order;
                 orderProduct.Product = product;
@@ -32,7 +47,6 @@ namespace OrganicAPI.Services.OrderService
                 await _context.SaveChangesAsync();
             } 
             
-            var response = new ServiceResponse<string>();
             response.Data = "Created new order";
             return response;
         }

@@ -25,7 +25,13 @@ namespace OrganicAPI.Controllers
             var response = await _service.Register(new Model.User {Email = request.Email, isSupplier = request.isSupplier}, request.Password);
             if (!response.Success) 
             {
-                return BadRequest(response);
+                var errorResponse = new ServiceResponse<LoginDto>();
+                errorResponse.Data = new LoginDto();
+                errorResponse.Data.IsSupplier = false;
+                errorResponse.Data.Token = string.Empty;
+                errorResponse.Success = false;
+                errorResponse.Message = response.Message;
+                return BadRequest(errorResponse);
             }
             var newResponse = await _service.Login(request.Email, request.Password);
             return Ok(newResponse);

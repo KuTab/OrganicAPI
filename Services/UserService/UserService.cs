@@ -28,21 +28,34 @@ namespace OrganicAPI.Services.UserService
         public async Task<ServiceResponse<string>> UpdateUser(UpdateUserDto newUser)
         {
             var response = new ServiceResponse<string>();
+            if (! (new EmailAddressAttribute().IsValid(newUser.Email))) {
+                response.Success = false;
+                response.Message = "Неверный email";
+                return response;
+            }
             var user = _context.Users.First(x => x.Id == newUser.Id);
+            var anotherUser = _context.Users.First(x => x.Email == newUser.Email);
             if(user != null)
             {
+                if(anotherUser != null && anotherUser.Id != newUser.Id) {
+                    response.Success = false;
+                    response.Message = "Пользователь с таким email уже есть";
+                    return response;
+                }
+
                 user.Email = newUser.Email;
                 user.Address = newUser.Address;
                 user.Phone = newUser.Phone;
                 user.Name = newUser.Name;
                 user.Surname = newUser.Surname;
+                user.Description = newUser.Description;
                 _context.SaveChangesAsync();
                 response.Success = true;
                 response.Data = "Информация успешно обновлена";
                 return response;
             }
             response.Success = false;
-            response.Data = "Нет пользователя с таким ID";
+            response.Message = "Нет пользователя с таким ID";
             return response;
         }
     }

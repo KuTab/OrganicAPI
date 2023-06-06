@@ -78,7 +78,7 @@ namespace OrganicAPI.Controllers
             });
         } 
 
-        [Authorize]
+        //[Authorize]
         [HttpGet("categories")]
         [Consumes("application/json")]
         [Produces("application/json")]

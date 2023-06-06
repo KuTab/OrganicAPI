@@ -57,6 +57,13 @@ namespace OrganicAPI.Services.AuthService
         {
             var response = new ServiceResponse<int>();
 
+            if (!(new EmailAddressAttribute().IsValid(user.Email))) {
+                response.Success = false;
+                response.Data = 0;
+                response.Message = "Неверный email";
+                return response;
+            }
+
             if(await UesrExists(user.Email)) 
             {
                 response.Data = 0;

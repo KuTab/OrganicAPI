@@ -73,7 +73,7 @@ namespace OrganicAPI.Services.ProductService
 
         public async Task<ServiceResponse<List<GetProductDto>>> GetProductsByCategory(string category)
         {
-            var dbProducts = await _context.Products.Include(x => x.Supplier).Where(x => x.Category == category).ToListAsync();
+            var dbProducts = await _context.Products.Include(x => x.Supplier).Where(x => x.Category == category && x.Quantity > 0).ToListAsync();
             var response = new ServiceResponse<List<GetProductDto>>();
             var mappedProducts = dbProducts.Select(x => _mapper.Map<GetProductDto>(x)).ToList();
             response.Success = true;
